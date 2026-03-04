@@ -4,17 +4,19 @@
 // Written by Nina
 /*******************************************************/
 
-let ENEMYWIDTH = 60;
+// Define variables and constants
+
+let ENEMYWIDTH = 50;
 let ENEMYHEIGHT = 40;
 
-let VERTICALENEMYGAP = ENEMYHEIGHT;
+let VERTICALENEMYGAP = ENEMYHEIGHT ;
 let HORIZONTALENEMYGAP = ENEMYWIDTH;
 
+let PLAYERSPEED = 8;
+let BULLETSPEED = 10;
+
 let enemySpeed = 0.25;
-
-let PLAYERSPEED = 6;
-
-let BULLETSPEED = 8;
+let score = 0;
 
 /*******************************************************/
 // setup()
@@ -25,6 +27,10 @@ function setup() {
 
     bulletsGroup = new Group;
     enemyGroup = new Group;
+    walls = new Group;
+
+    bulletsGroup.collides(enemyGroup, enemyHit);
+    bulletsGroup.collides(walls, wallsHit);
 
     addPlayer();
     addEnemies();
@@ -39,7 +45,7 @@ function addEnemies() {
 
 
     for (i = 1; i < 11; i++) {
-        for (n = 0; n < 3; n++) {
+        for (n = 1; n < 4; n++) {
             enemy = new Sprite(
                 i*(ENEMYWIDTH + HORIZONTALENEMYGAP) + windowWidth/2 - (ENEMYWIDTH * 6 + HORIZONTALENEMYGAP * 4 + HORIZONTALENEMYGAP), 
                 n*(ENEMYWIDTH + VERTICALENEMYGAP),
@@ -49,12 +55,15 @@ function addEnemies() {
             );
             
             enemy.color = "green";
+            enemy.strokeWeight = 2;
             enemyGroup.add(enemy);
         }
     }
+
+    console.log("Enemies added = " + enemyGroup.length);
      
     enemyGroup.vel.y = enemySpeed;
-    enemyGroup.bounciness = 0;
+    //enemyGroup.vel.x = enemySpeed/2;
 
     player.collides(enemyGroup, loseGame);
 
@@ -64,8 +73,9 @@ function addEnemies() {
 // addPlayer()
 /*******************************************************/
 function addPlayer() {
-	player = new Sprite(windowWidth/2, windowHeight/2 + 300, 25, "d");
+	player = new Sprite(windowWidth/2, windowHeight - 200, 25, "d");
     player.color = "blue"
+    player.strokeWeight= 2;
 }
 
 /*******************************************************/
@@ -81,9 +91,9 @@ function loseGame() {
 function fireBullet() {
     bullet = new Sprite(player.x, player.y, 10, "d");
     bullet.vel.y = -BULLETSPEED;
+    bullet.color = "yellow";
+    bullet.strokeWeight = 2;
     bulletsGroup.add(bullet);
-    bulletsGroup.collides(enemyGroup, enemyHit);
-    bulletsGroup.collides(walls, wallsHit);
 }
 
 /*******************************************************/
@@ -91,6 +101,8 @@ function fireBullet() {
 /*******************************************************/
 function enemyHit(_bullet, _enemy) {
     console.log("enemyHit");
+    score++;
+    console.log(score);
     _bullet.remove();
     _enemy.remove();
 }
@@ -108,8 +120,6 @@ function wallsHit(_bullet) {
 /*******************************************************/
 
 function addWalls() {
-
-    walls = new Group;
 
 	wallLH  = new Sprite(0, height/2, 40, height, 's');
     wallLH.color = "white";
@@ -153,25 +163,39 @@ function draw() {
 		player.velocity.x = 0;
 	
 	} else if (kb.released('right')) {
+
 		player.velocity.x = 0;
+
 	}
 
-    if (enemy.y > windowHeight - 50) {
+    if (enemy.y >= windowHeight - 50) {
         loseGame();
     }
+
+    /*******************
+    if (enemy.x > windowWidth - 100) {
+        enemyGroup.vel.x = -enemySpeed;
+    }
+
+    if (enemy.x > 100) {
+        enemyGroup.vel.x = enemySpeed;
+    }
+    *******************/
 
     if (kb.pressed ("space") && bulletsGroup.length < 3) {
         fireBullet();
     }
 
-    if (enemyGroup.length = 0) {
-        console.log("win");
+    if (enemyGroup.length <= 0) {
+        enemySpeed = enemySpeed  + 0.25;
+        addEnemies();
     }
 
     player.vel.y = 0;
-    player.y = windowHeight/2 + 300
+    player.y = windowHeight - 200;
 
     bulletsGroup.vel.x = 0;
+    bulletsGroup.vel.y = -BULLETSPEED;
  
 }
 
