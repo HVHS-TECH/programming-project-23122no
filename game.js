@@ -4,7 +4,7 @@
 // Written by Nina
 /*******************************************************/
 
-// Define variables and constants
+// Define constants
 
 let ENEMYWIDTH = 50;
 let ENEMYHEIGHT = 40;
@@ -15,7 +15,9 @@ let HORIZONTALENEMYGAP = ENEMYWIDTH;
 let PLAYERSPEED = 8;
 let BULLETSPEED = 10;
 
-let enemySpeed = 0.25;
+// Define variables
+
+let enemySpeed = 5;
 let score = 0;
 
 /*******************************************************/
@@ -23,15 +25,20 @@ let score = 0;
 /*******************************************************/
 function setup() {
 	console.log("setup: ");
+
+    // Create a canvas
 	cnv = new Canvas(windowWidth, windowHeight);
 
+    // Define groups
     bulletsGroup = new Group;
     enemyGroup = new Group;
     walls = new Group;
 
+    // Trigger respective functions when collisions occur
     bulletsGroup.collides(enemyGroup, enemyHit);
     bulletsGroup.collides(walls, wallsHit);
 
+    // Add the game components
     addPlayer();
     addEnemies();
     addWalls();
@@ -43,6 +50,7 @@ function setup() {
 /*******************************************************/
 function addEnemies() {
 
+    lose.display = "none";
 
     for (i = 1; i < 11; i++) {
         for (n = 1; n < 4; n++) {
@@ -83,6 +91,9 @@ function addPlayer() {
 /*******************************************************/
 function loseGame() {
 	console.log("you lost");
+    //window.location.href = "index.html";
+    cnv.remove();
+    lose.textContent = "You lost! You killed " + score + " enemies.";
 }
 
 /*******************************************************/
@@ -168,7 +179,7 @@ function draw() {
 
 	}
 
-    if (enemy.y >= windowHeight - 50) {
+    if (enemy.y >= windowHeight) {
         loseGame();
     }
 
@@ -196,6 +207,11 @@ function draw() {
 
     bulletsGroup.vel.x = 0;
     bulletsGroup.vel.y = -BULLETSPEED;
+
+    textSize(64);
+    fill("blue");
+    textFont("Arial");
+    text(score, 50, windowHeight - 50);
  
 }
 
