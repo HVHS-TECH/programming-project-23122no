@@ -6,8 +6,7 @@
 
 // Define variables
 
-let enemyWidth;
-let enemyHeight;
+
 
 let bulletSpeed = 10;
 let playerSpeed = 4;
@@ -37,10 +36,6 @@ function setup() {
     score = 0;
 
     // Set enemy sizing to be proportional to the window size
-
-    enemyWidth = windowWidth/25;
-    enemyHeight = windowHeight/20;
-
     enemySpeed = windowHeight/2000;
     playerSpeed = windowWidth/300;
 
@@ -61,9 +56,22 @@ function setup() {
 }
 
 /*******************************************************/
+// addPlayer()
+/*******************************************************/
+function addPlayer() {
+    // Create a new sprite to be the player in the middle bottom of the screen
+	player = new Sprite(windowWidth/2, windowHeight - 200, windowHeight/30, "d");
+    player.color = "blue"
+    player.strokeWeight = 2;
+}
+
+/*******************************************************/
 // addEnemies()
 /*******************************************************/
 function addEnemies() {
+
+    let enemyWidth = windowWidth/25;
+    let enemyHeight = windowHeight/20;
 
     let specialEnemyNumber = floor(random(0, 30));
     let enemyNumber = 0;
@@ -115,46 +123,33 @@ function addEnemies() {
 }
 
 /*******************************************************/
-// addPlayer()
+// addWalls()
 /*******************************************************/
-function addPlayer() {
-    // Create a new sprite to be the player in the middle bottom of the screen
-	player = new Sprite(windowWidth/2, windowHeight - 200, windowHeight/30, "d");
-    player.color = "blue"
-    player.strokeWeight = 2;
-}
 
-/*******************************************************/
-// loseGame()
-/*******************************************************/
-function loseGame() {
-	console.log("you lost");
+function addWalls() {
 
-    gameRunning = false;
+    // Create walls around the outside of the screen
 
-    // Delete all sprites within the enemy and bullet groups
-    enemyGroup.deleteAll();
-    bulletsGroup.deleteAll();
+	wallLeft  = new Sprite(0, height/2, 40, height, 's');
+    wallLeft.color = "white";
+    walls.add(wallLeft);
 
-    // Remove the player and canvas
-    player.remove();
-    cnv.remove();
 
-    // Show the end screen and update its text
-    ended.style.display = "block";
-    lose.textContent = "You killed " + score + " enemies.";
-}
+	wallRight  = new Sprite(width, height/2, 40, height, 's');
+    wallRight.color = "white";
+    walls.add(wallRight);
 
-/*******************************************************/
-// fireBullet()
-/*******************************************************/
-function fireBullet() {
-    // Create a new bullet where the player is
-    bullet = new Sprite(player.x, player.y, windowHeight/80, "d");
+	wallTop  = new Sprite(width/2, 0, width, 40, 's');
+    wallTop.color = "white";
+    walls.add(wallTop);
 
-    bullet.color = "yellow";
-    bullet.strokeWeight = 2;
-    bulletsGroup.add(bullet);
+	wallBottom  = new Sprite(width/2, height, width, 40, 's');
+    wallBottom.color = "white";
+    walls.add(wallBottom);
+
+    walls.strokeWeight = 0;
+    walls.bounciness = 0;
+
 }
 
 /*******************************************************/
@@ -193,35 +188,39 @@ function wallsHit(_bullet) {
     _bullet.remove();
 }
 
+/*******************************************************/
+// loseGame()
+/*******************************************************/
+function loseGame() {
+	console.log("you lost");
+
+    gameRunning = false;
+
+    // Delete all sprites within the enemy and bullet groups
+    enemyGroup.deleteAll();
+    bulletsGroup.deleteAll();
+
+    // Remove the player, walls and canvas
+    player.remove();
+    walls.remove();
+    cnv.remove();
+
+
+    // Show the end screen and update its text
+    ended.style.display = "block";
+    lose.textContent = "You killed " + score + " enemies.";
+}
 
 /*******************************************************/
-// addWalls()
+// fireBullet()
 /*******************************************************/
+function fireBullet() {
+    // Create a new bullet where the player is
+    bullet = new Sprite(player.x, player.y, windowWidth/80, "d");
 
-function addWalls() {
-
-    // Create walls around the outside of the screen
-
-	wallLH  = new Sprite(0, height/2, 40, height, 's');
-    wallLH.color = "white";
-    walls.add(wallLH);
-
-
-	wallRH  = new Sprite(width, height/2, 40, height, 's');
-    wallRH.color = "white";
-    walls.add(wallRH);
-
-	wallTop  = new Sprite(width/2, 0, width, 40, 's');
-    wallTop.color = "white";
-    walls.add(wallTop);
-
-	wallBot  = new Sprite(width/2, height, width, 40, 's');
-    wallBot.color = "white";
-    walls.add(wallBot);
-
-    walls.strokeWeight = 0;
-    walls.bounciness = 0;
-
+    bullet.color = "yellow";
+    bullet.strokeWeight = 2;
+    bulletsGroup.add(bullet);
 }
 
 /*******************************************************/
@@ -249,17 +248,13 @@ function draw() {
 
 		player.velocity.x = 0;
 
-	}
+	};
 
     // Lose the game if an enemy reaches the bottom of the screen
 
-    if (enemy.y >= windowHeight) {
+    if ((enemyGroup.some(enemy => enemy.y > windowHeight)) || kb.pressed("k")) {
         loseGame();
-    }
-
-    if (kb.pressed("k")) {
-        loseGame();
-    }
+    };
 
     /*******************
     if (enemy.x > windowWidth - 100) {
