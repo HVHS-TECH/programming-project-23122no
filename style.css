@@ -37,3 +37,9 @@ body {
 h1 {
   font-size: 75px;
 }
+
+p {
+  margin-left: 50px;
+  margin-right: 50px;
+
+}

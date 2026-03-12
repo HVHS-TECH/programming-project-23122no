@@ -18,6 +18,14 @@ let gameRunning = true;
 const MAXBULLETS = 3;
 
 /*******************************************************/
+// preload()
+/*******************************************************/
+function preload() {
+    imgBG = loadImage("../images/background.png")
+
+}
+
+/*******************************************************/
 // setup()
 /*******************************************************/
 function setup() {
@@ -130,20 +138,22 @@ function addWalls() {
 
     // Create walls around the outside of the screen
 
-	wallLeft  = new Sprite(0, height/2, 40, height, 's');
+    const WALLSIZE = 20;
+
+	wallLeft  = new Sprite(0, height/2, WALLSIZE, height, 's');
     wallLeft.color = "white";
     walls.add(wallLeft);
 
 
-	wallRight  = new Sprite(width, height/2, 40, height, 's');
+	wallRight  = new Sprite(width, height/2, WALLSIZE, height, 's');
     wallRight.color = "white";
     walls.add(wallRight);
 
-	wallTop  = new Sprite(width/2, 0, width, 40, 's');
+	wallTop  = new Sprite(width/2, 0, width, WALLSIZE, 's');
     wallTop.color = "white";
     walls.add(wallTop);
 
-	wallBottom  = new Sprite(width/2, height, width, 40, 's');
+	wallBottom  = new Sprite(width/2, height, width, WALLSIZE, 's');
     wallBottom.color = "white";
     walls.add(wallBottom);
 
@@ -227,7 +237,7 @@ function fireBullet() {
 // draw()
 /*******************************************************/
 function draw() {
-	background('lightblue');
+	background(imgBG);
 
     // Allow the player to move using arrow keys
 
