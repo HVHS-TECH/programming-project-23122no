@@ -5,9 +5,6 @@
 /*******************************************************/
 
 // Define variables
-
-
-
 let bulletSpeed = 10;
 let playerSpeed = 4;
 let enemySpeed = 0.25;
@@ -21,8 +18,7 @@ const MAXBULLETS = 3;
 // preload()
 /*******************************************************/
 function preload() {
-    imgBG = loadImage("../images/background.png")
-
+    imgBG = loadImage("../images/background.png");
 }
 
 /*******************************************************/
@@ -96,7 +92,7 @@ function addEnemies() {
                     enemyHeight, 
                     "k"
                 );
-            specialEnemy.color = "pink";
+            specialEnemy.color = "lightgreen";
             enemyGroup.add(specialEnemy);
 
             } else {
@@ -121,7 +117,7 @@ function addEnemies() {
     console.log("Enemies added = " + enemyGroup.length);
      
     enemyGroup.vel.y = enemySpeed;
-    //enemyGroup.vel.x = enemySpeed/2;
+    //enemyGroup.vel.x = enemySpeed * 1.5;
 
     enemyGroup.strokeWeight = 2;
 
@@ -248,6 +244,7 @@ function draw() {
 	} else if (kb.pressing ('right')) {
 		
 		player.velocity.x = playerSpeed;
+        
 	};
 
 	if (kb.released('left')) {
@@ -266,16 +263,6 @@ function draw() {
         loseGame();
     };
 
-    /*******************
-    if (enemy.x > windowWidth - 100) {
-        enemyGroup.vel.x = -enemySpeed;
-    }
-
-    if (enemy.x > 100) {
-        enemyGroup.vel.x = enemySpeed;
-    }
-    *******************/
-
     // Fire a bullet if the user presses space and there are less than three bullets already
     if (kb.pressed ("space") && bulletsGroup.length < MAXBULLETS) {
         fireBullet();
@@ -284,8 +271,19 @@ function draw() {
     // If there are no enemies left and the game is running, add more enemies and increase speed
     if ((enemyGroup.length <= 0) && gameRunning) {
         enemySpeed = enemySpeed  + windowHeight/4000;;
+        bulletsGroup.deleteAll();
         addEnemies();
     }
+
+    /**************************************************
+    if (enemyGroup.some(enemy => enemy.x > windowWidth - windowWidth/15)) {
+        enemyGroup.vel.x = -enemySpeed * 1.5;
+    };
+
+    if (enemyGroup.some(enemy => enemy.x < windowWidth/15)) {
+        enemyGroup.vel.x = enemySpeed * 1.5;
+    };
+    **************************************************/
 
     // Prevent the player from changing from their position on the y axis
     player.vel.y = 0;

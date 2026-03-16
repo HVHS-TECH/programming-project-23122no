@@ -2,19 +2,20 @@ button {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-
   background-color: #a3e2ff;
   width: 220px;
   text-align: center;
   border-style: solid;
   border-color: #0a1a46;
   border-radius: 10px;
-  font-family: Arial, sans-serif;
+  font-family: "Jua", sans-serif;
+  color: #0a1a46;
 }
 
 body {
     background-color:#dcf4ff;
-    font-family: Arial, sans-serif;
+    font-family: "Jua", sans-serif;
+    color: #0a1a46;
 }
 
 .container > div {
@@ -24,14 +25,12 @@ body {
 }
 
 .container {
-    color: #0a1a46;
     margin-top: 200px;
 }
 
 #lose {
     font-size: 50px;
     margin: 25px;
-    color: #0a1a46;
 }
 
 h1 {
