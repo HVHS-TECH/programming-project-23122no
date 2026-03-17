@@ -18,7 +18,8 @@ const MAXBULLETS = 3;
 // preload()
 /*******************************************************/
 function preload() {
-    imgBG = loadImage("../images/background.png");
+    backgroundImage = loadImage("../images/background.png");
+    playerImage = loadImage("../images/player_image.png");
 }
 
 /*******************************************************/
@@ -42,21 +43,21 @@ function setup() {
     // Set enemy sizing to be proportional to the window size
     enemySpeed = windowHeight/2000;
     playerSpeed = windowWidth/300;
+    bulletSpeed = windowHeight/100;
 
     // Add the game components
     addPlayer();
     addEnemies();
     addWalls();
 
-    // Trigger respective functions when collisions occur
+    // Trigger respective functions when collisions occur with bullets
     bulletsGroup.collides(enemyGroup, enemyHit);
-    bulletsGroup.collides(specialEnemy, specialEnemyHit);
-
+    bulletsGroup.collides(playerSpeedEnemy, playerSpeedEnemyHit);
+    bulletsGroup.collides(bulletSpeedEnemy, bulletSpeedEnemyHit);
     bulletsGroup.collides(walls, wallsHit);
 
     // Hide the end screen
     ended.style.display = "none";
-
 }
 
 /*******************************************************/
@@ -64,9 +65,12 @@ function setup() {
 /*******************************************************/
 function addPlayer() {
     // Create a new sprite to be the player in the middle bottom of the screen
-	player = new Sprite(windowWidth/2, windowHeight - 200, windowHeight/30, "d");
-    player.color = "blue"
+    playerSize = windowHeight/25
+	player = new Sprite(windowWidth/2, windowHeight - 200, playerSize, "d");
+    //player.color = "blue"
     player.strokeWeight = 2;
+    player.img = (playerImage);
+    playerImage.resize(playerSize, playerSize);
 }
 
 /*******************************************************/
@@ -74,43 +78,57 @@ function addPlayer() {
 /*******************************************************/
 function addEnemies() {
 
-    let enemyWidth = windowWidth/25;
-    let enemyHeight = windowHeight/20;
+    const ENEMYWIDTH = windowWidth/25;
+    const ENEMYHEIGHT = windowHeight/20;
 
-    let specialEnemyNumber = floor(random(0, 30));
+    let playerSpeedEnemyNumber = floor(random(0, 30));
+    let bulletSpeedEnemyNumber = floor(random(0, 30));
     let enemyNumber = 0;
+
+    while (playerSpeedEnemyNumber == bulletSpeedEnemyNumber) {
+        console.log("enemy type overlap")
+        bulletSpeedEnemyNumber = floor(random(0, 30));
+    }
 
     // Create a 10 by 3 grid of enemies
     for (i = 1; i < 11; i++) {
         for (n = 1; n < 4; n++) {
 
-            if (specialEnemyNumber == enemyNumber) {
-                specialEnemy = new Sprite(
-                    i*(2 * enemyWidth) + windowWidth/2 - (enemyWidth * 11), 
-                    n*(2 * enemyHeight),
-                    enemyWidth, 
-                    enemyHeight, 
+            if (enemyNumber == playerSpeedEnemyNumber) {
+                playerSpeedEnemy = new Sprite(
+                    i*(2 * ENEMYWIDTH) + windowWidth/2 - (ENEMYWIDTH * 11), 
+                    n*(2 * ENEMYHEIGHT),
+                    ENEMYWIDTH, 
+                    ENEMYHEIGHT, 
                     "k"
                 );
-            specialEnemy.color = "lightgreen";
-            enemyGroup.add(specialEnemy);
+            playerSpeedEnemy.color = "#afe9aa";
+            enemyGroup.add(playerSpeedEnemy);
+
+            } else if (enemyNumber == bulletSpeedEnemyNumber) {
+                bulletSpeedEnemy = new Sprite(
+                    i*(2 * ENEMYWIDTH) + windowWidth/2 - (ENEMYWIDTH * 11), 
+                    n*(2 * ENEMYHEIGHT),
+                    ENEMYWIDTH, 
+                    ENEMYHEIGHT, 
+                    "k"
+                );
+            bulletSpeedEnemy.color = "#2c7925";
+            enemyGroup.add(bulletSpeedEnemy);
 
             } else {
                 enemy = new Sprite(
-                    i*(2 * enemyWidth) + windowWidth/2 - (enemyWidth * 11), 
-                    n*(2 * enemyHeight),
-                    enemyWidth, 
-                    enemyHeight, 
+                    i*(2 * ENEMYWIDTH) + windowWidth/2 - (ENEMYWIDTH * 11), 
+                    n*(2 * ENEMYHEIGHT),
+                    ENEMYWIDTH, 
+                    ENEMYHEIGHT, 
                     "k"
                 );
-            enemy.color = "green";
+            enemy.color = "#58ac51";
             enemyGroup.add(enemy);
             }
 
             enemyNumber++;
-
-            //console.log("The special enemy is number " + specialEnemyNumber);
-            //console.log("The current enemy number is " + enemyNumber);
         }
     }
 
@@ -140,7 +158,6 @@ function addWalls() {
     wallLeft.color = "white";
     walls.add(wallLeft);
 
-
 	wallRight  = new Sprite(width, height/2, WALLSIZE, height, 's');
     wallRight.color = "white";
     walls.add(wallRight);
@@ -154,7 +171,6 @@ function addWalls() {
     walls.add(wallBottom);
 
     walls.strokeWeight = 0;
-    walls.bounciness = 0;
 
 }
 
@@ -172,18 +188,37 @@ function enemyHit(_bullet, _enemy) {
 }
 
 /*******************************************************/
-// specialEnemyHit()
+// playerSpeedEnemyHit()
 /*******************************************************/
-function specialEnemyHit(_bullet, _enemy) {
+function playerSpeedEnemyHit(_bullet, _enemy) {
 
     // Add 1 to the score
     score++;
 
+    // Remove the enemy and bullet that collided with each other
+    _bullet.remove();
+    _enemy.remove();
+
+    // Increase the player speed
     playerSpeed = playerSpeed + windowWidth/300;
+
+}
+
+/*******************************************************/
+// bulletSpeedEnemyHit()
+/*******************************************************/
+function bulletSpeedEnemyHit(_bullet, _enemy) {
+
+    // Add 1 to the score
+    score++;
 
     // Remove the enemy and bullet that collided with each other
     _bullet.remove();
     _enemy.remove();
+
+    // Increase the player speed
+    bulletSpeed = bulletSpeed + windowHeight/100;
+
 }
 
 /*******************************************************/
@@ -223,7 +258,6 @@ function loseGame() {
 function fireBullet() {
     // Create a new bullet where the player is
     bullet = new Sprite(player.x, player.y, windowWidth/80, "d");
-
     bullet.color = "yellow";
     bullet.strokeWeight = 2;
     bulletsGroup.add(bullet);
@@ -233,7 +267,7 @@ function fireBullet() {
 // draw()
 /*******************************************************/
 function draw() {
-	background(imgBG);
+	background(backgroundImage);
 
     // Allow the player to move using arrow keys
 
@@ -258,7 +292,6 @@ function draw() {
 	};
 
     // Lose the game if an enemy reaches the bottom of the screen
-
     if ((enemyGroup.some(enemy => enemy.y > windowHeight)) || kb.pressed("k")) {
         loseGame();
     };
@@ -288,8 +321,9 @@ function draw() {
     // Prevent the player from changing from their position on the y axis
     player.vel.y = 0;
     player.y = windowHeight - windowHeight/10;
+    player.rotation = 0;
 
-    // Move the bullets vertically upwards
+    // Always move the bullets vertically upwards
     bulletsGroup.vel.x = 0;
     bulletsGroup.vel.y = -bulletSpeed;
 
@@ -298,6 +332,10 @@ function draw() {
     fill("blue");
     textFont("Arial");
     text(score, 50, windowHeight - 50);
+
+    if (gameRunning == false && kb.pressed ('r')) {
+        setup();
+    }
  
 }
 
