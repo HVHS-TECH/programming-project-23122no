@@ -18,8 +18,8 @@ const MAXBULLETS = 3;
 // preload()
 /*******************************************************/
 function preload() {
-    backgroundImage = loadImage("../images/background.png");
-    playerImage = loadImage("../images/player_image.png");
+    backgroundImage = loadImage("images/background.png");
+    playerImage = loadImage("images/player_image.png");
 }
 
 /*******************************************************/
