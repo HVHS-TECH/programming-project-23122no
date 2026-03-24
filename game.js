@@ -5,13 +5,13 @@
 /*******************************************************/
 
 // Define variables
-let bulletSpeed  = 10;
-let playerSpeed  = 4;
-let enemySpeed   = 0.25;
+let bulletSpeed = 10;
+let playerSpeed = 4;
+let enemySpeed = 0.25;
 
-let enemyRound   = 2;
+let enemyRound = 2;
 let bulletAmount = 1;
-let gameRunning  = true;
+let gameRunning = true;
 let score = 0;
 
 // Define constants
@@ -22,7 +22,7 @@ const MAXBULLETS = 3;
 /*******************************************************/
 function preload() {
     backgroundImage = loadImage("images/background.png");
-    playerImage     = loadImage("images/player_image.png");
+    playerImage = loadImage("images/player_image.png");
 }
 
 /*******************************************************/
@@ -36,16 +36,20 @@ function setup() {
 
     // Define groups
     bulletsGroup = new Group;
-    enemyGroup = new Group;
     walls = new Group;
+    enemyGroup = new Group;
+
+    playerSpeedEnemyGroup = new Group;
+    bulletSpeedEnemyGroup = new Group;
+    doublePointEnemyGroup = new Group;
 
     // Update variables
     gameRunning = true;
     score = 0;
 
     // Set enemy sizing to be proportional to the window size
-    enemySpeed  = windowHeight / 2000;
-    playerSpeed = windowWidth  / 300;
+    enemySpeed = windowHeight / 2000;
+    playerSpeed = windowWidth / 300;
     bulletSpeed = windowHeight / 100;
 
     // Add the game components
@@ -56,9 +60,6 @@ function setup() {
     // Trigger respective functions when collisions occur with bullets
     bulletsGroup.collides(walls, wallsHit);
     bulletsGroup.collides(enemyGroup, enemyHit);
-
-    bulletsGroup.collides(playerSpeedEnemy, playerSpeedEnemyHit);
-    bulletsGroup.collides(bulletSpeedEnemy, bulletSpeedEnemyHit);
 
     // Hide the end screen
     ended.style.display = "none";
@@ -82,78 +83,56 @@ function addPlayer() {
 /*******************************************************/
 function addEnemies() {
 
-    const ENEMYWIDTH  = windowWidth  / 25;
+    const ENEMYWIDTH = windowWidth / 25;
     const ENEMYHEIGHT = windowHeight / 20;
 
-    let playerSpeedEnemyNumber  = floor(random(0, 30));
-    let bulletSpeedEnemyNumber  = floor(random(0, 30));
-    let bulletAmountEnemyNumber = floor(random(0, 30));
     let enemyNumber = 0;
 
-    while (playerSpeedEnemyNumber == bulletSpeedEnemyNumber ||
-        playerSpeedEnemyNumber == bulletAmountEnemyNumber ||
-        bulletSpeedEnemyNumber == bulletAmountEnemyNumber) {
+    let playerSpeedEnemyNumber = floor(random(0, 30));
+    let bulletSpeedEnemyNumber = floor(random(0, 30));
 
-        console.log("enemy type overlap");
+    let doublePointEnemyNumbers = new Set();
+
+    while (doublePointEnemyNumbers.size < 5) {
+        doublePointEnemyNumbers.add(floor(random(0, 30)));
+    }
+
+    while (doublePointEnemyNumbers.has(playerSpeedEnemyNumber || bulletSpeedEnemyNumber) ||
+        playerSpeedEnemyNumber == bulletSpeedEnemyNumber){
 
         playerSpeedEnemyNumber = floor(random(0, 30));
         bulletSpeedEnemyNumber = floor(random(0, 30));
-        bulletAmountEnemyNumber = floor(random(0, 30));
+
     }
 
     // Create a 10 by 3 grid of enemies
     for (i = 1; i < 11; i++) {
         for (n = 1; n < 4; n++) {
 
-            if (enemyNumber == playerSpeedEnemyNumber) {
-                playerSpeedEnemy = new Sprite(
-                    i * (2 * ENEMYWIDTH) + windowWidth / 2 - (ENEMYWIDTH * 11),
-                    n * (2 * ENEMYHEIGHT),
-                    ENEMYWIDTH,
-                    ENEMYHEIGHT,
-                    "k"
-                );
-                playerSpeedEnemy.color = "#afe9aa";
-                enemyGroup.add(playerSpeedEnemy);
+            enemy = new Sprite(
+                i * (2 * ENEMYWIDTH) + windowWidth / 2 - (ENEMYWIDTH * 11),
+                n * (2 * ENEMYHEIGHT),
+                ENEMYWIDTH,
+                ENEMYHEIGHT,
+                "k"
+            );
+            enemy.color = "#5ea057"
 
+            if (enemyNumber == playerSpeedEnemyNumber) {
+                playerSpeedEnemyGroup.add(enemy);
+                enemy.color = "#c1f0bc"
             } else if (enemyNumber == bulletSpeedEnemyNumber) {
-                bulletSpeedEnemy = new Sprite(
-                    i * (2 * ENEMYWIDTH) + windowWidth / 2 - (ENEMYWIDTH * 11),
-                    n * (2 * ENEMYHEIGHT),
-                    ENEMYWIDTH,
-                    ENEMYHEIGHT,
-                    "k"
-                );
-                bulletSpeedEnemy.color = "#175711";
-                enemyGroup.add(bulletSpeedEnemy);
-                /************************************
-                 } else if ((enemyNumber == bulletAmountEnemyNumber) && (enemyRound == 2)) {
-                    bulletAmountEnemy = new Sprite(
-                        i*(2 * ENEMYWIDTH) + windowWidth/2 - (ENEMYWIDTH * 11), 
-                        n*(2 * ENEMYHEIGHT),
-                        ENEMYWIDTH, 
-                        ENEMYHEIGHT, 
-                        "k"
-                    );
-                bulletAmountEnemy.color = "#ffffff";
-                enemyGroup.add(bulletAmountEnemy);
-                ************************************/
-            } else {
-                enemy = new Sprite(
-                    i * (2 * ENEMYWIDTH) + windowWidth / 2 - (ENEMYWIDTH * 11),
-                    n * (2 * ENEMYHEIGHT),
-                    ENEMYWIDTH,
-                    ENEMYHEIGHT,
-                    "k"
-                );
-                enemy.color = "#58ac51";
-                enemyGroup.add(enemy);
+                bulletSpeedEnemyGroup.add(enemy);
+                enemy.color = "#174e11"
+            } else if (doublePointEnemyNumbers.has(enemyNumber)) {
+                doublePointEnemyGroup.add(enemy);
+                enemy.color = "white"
             }
+
+            enemyGroup.add(enemy);
             enemyNumber++;
         }
     }
-
-    console.log("Enemies added = " + enemyGroup.length);
 
     enemyGroup.vel.y = enemySpeed;
     //enemyGroup.vel.x = enemySpeed * 1.5;
@@ -162,11 +141,6 @@ function addEnemies() {
 
     // Check for collisions between enemies and player, lose the game if this occurs
     player.collides(enemyGroup, loseGame);
-
-    if (enemyRound == 2) {
-        //bulletsGroup.collides(bulletAmountEnemy, bulletAmountEnemyHit);
-    }
-
 }
 
 /*******************************************************/
@@ -204,63 +178,24 @@ function addWalls() {
 /*******************************************************/
 function enemyHit(_bullet, _enemy) {
 
-    // Add 1 to the score
-    score++;
+    if (bulletSpeedEnemyGroup.includes(_enemy)) {
+        bulletSpeed = bulletSpeed + windowHeight / 75;
+    }
+
+    if (playerSpeedEnemyGroup.includes(_enemy)) {
+        playerSpeed = playerSpeed + windowHeight / 250;
+    }
+
+    if (doublePointEnemyGroup.includes(_enemy)) {
+        console.log("hit double point");
+        score = score + 2;
+    } else {
+        score++;
+    }
 
     // Remove the enemy and bullet that collided with each other
     _bullet.remove();
     _enemy.remove();
-}
-
-/*******************************************************/
-// playerSpeedEnemyHit()
-/*******************************************************/
-function playerSpeedEnemyHit(_bullet, _enemy) {
-
-    // Add 1 to the score
-    score++;
-
-    // Remove the enemy and bullet that collided with each other
-    _bullet.remove();
-    _enemy.remove();
-
-    // Increase the player speed
-    playerSpeed = playerSpeed + windowWidth / 300;
-
-}
-
-/*******************************************************/
-// bulletSpeedEnemyHit()
-/*******************************************************/
-function bulletSpeedEnemyHit(_bullet, _enemy) {
-
-    // Add 1 to the score
-    score++;
-
-    // Remove the enemy and bullet that collided with each other
-    _bullet.remove();
-    _enemy.remove();
-
-    // Increase the player speed
-    bulletSpeed = bulletSpeed + windowHeight / 100;
-
-}
-
-/*******************************************************/
-// bulletAmountEnemyHit()
-/*******************************************************/
-function bulletAmountEnemyHit(_bullet, _enemy) {
-
-    // Add 1 to the score
-    score++;
-
-    // Remove the enemy and bullet that collided with each other
-    _bullet.remove();
-    _enemy.remove();
-
-    // Increase the bullet amount shot at once
-    bulletAmount++;
-    console.log(bulletAmount);
 }
 
 /*******************************************************/
