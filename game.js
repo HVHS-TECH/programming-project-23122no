@@ -15,7 +15,7 @@ let gameRunning = true;
 let score = 0;
 
 // Define constants
-const MAXBULLETS = 3;
+const MAXBULLETS = 2;
 
 /*******************************************************/
 // preload()
@@ -69,13 +69,14 @@ function setup() {
 // addPlayer()
 /*******************************************************/
 function addPlayer() {
-    // Create a new sprite to be the player in the middle bottom of the screen
+    // Create a new sprite to be the player in the middle bottom of 
+    // the screen
     playerSize = windowHeight / 25
     player = new Sprite(windowWidth / 2, windowHeight - 200, playerSize, "d");
-    //player.color = "blue"
+    player.color = "#2c71ca"
     player.strokeWeight = 2;
-    player.img = (playerImage);
-    playerImage.resize(playerSize, playerSize);
+    //player.img = (playerImage);
+    //playerImage.resize(playerSize, playerSize);
 }
 
 /*******************************************************/
@@ -86,22 +87,23 @@ function addEnemies() {
     const ENEMYWIDTH = windowWidth / 25;
     const ENEMYHEIGHT = windowHeight / 20;
 
-    let enemyNumber = 0;
+    let enemyNumber = 1;
 
-    let playerSpeedEnemyNumber = floor(random(0, 30));
-    let bulletSpeedEnemyNumber = floor(random(0, 30));
+    let playerSpeedEnemyNumber = floor(random(1, 30));
+    let bulletSpeedEnemyNumber = floor(random(1, 30));
 
     let doublePointEnemyNumbers = new Set();
 
     while (doublePointEnemyNumbers.size < 5) {
-        doublePointEnemyNumbers.add(floor(random(0, 30)));
+        doublePointEnemyNumbers.add(floor(random(1, 30)));
     }
 
-    while (doublePointEnemyNumbers.has(playerSpeedEnemyNumber || bulletSpeedEnemyNumber) ||
-        playerSpeedEnemyNumber == bulletSpeedEnemyNumber){
+    while (doublePointEnemyNumbers.has(playerSpeedEnemyNumber) ||
+           doublePointEnemyNumbers.has(bulletSpeedEnemyNumber) ||
+           playerSpeedEnemyNumber == bulletSpeedEnemyNumber) {
 
-        playerSpeedEnemyNumber = floor(random(0, 30));
-        bulletSpeedEnemyNumber = floor(random(0, 30));
+        playerSpeedEnemyNumber = floor(random(1, 30));
+        bulletSpeedEnemyNumber = floor(random(1, 30));
 
     }
 
@@ -116,17 +118,13 @@ function addEnemies() {
                 ENEMYHEIGHT,
                 "k"
             );
-            enemy.color = "#5ea057"
 
             if (enemyNumber == playerSpeedEnemyNumber) {
                 playerSpeedEnemyGroup.add(enemy);
-                enemy.color = "#c1f0bc"
             } else if (enemyNumber == bulletSpeedEnemyNumber) {
                 bulletSpeedEnemyGroup.add(enemy);
-                enemy.color = "#174e11"
             } else if (doublePointEnemyNumbers.has(enemyNumber)) {
                 doublePointEnemyGroup.add(enemy);
-                enemy.color = "white"
             }
 
             enemyGroup.add(enemy);
@@ -134,12 +132,18 @@ function addEnemies() {
         }
     }
 
+    enemyGroup.color = "#5ea057"
+    bulletSpeedEnemyGroup.color = "#276920"
+    playerSpeedEnemyGroup.color = "#c1f0bc"
+    doublePointEnemyGroup.color = "white"
+
     enemyGroup.vel.y = enemySpeed;
     //enemyGroup.vel.x = enemySpeed * 1.5;
 
     enemyGroup.strokeWeight = 2;
 
-    // Check for collisions between enemies and player, lose the game if this occurs
+    // Check for collisions between enemies and player, lose the 
+    // game if this occurs
     player.collides(enemyGroup, loseGame);
 }
 
@@ -154,22 +158,19 @@ function addWalls() {
     const WALLSIZE = 20;
 
     wallLeft = new Sprite(0, height / 2, WALLSIZE, height, 's');
-    wallLeft.color = "white";
     walls.add(wallLeft);
 
     wallRight = new Sprite(width, height / 2, WALLSIZE, height, 's');
-    wallRight.color = "white";
     walls.add(wallRight);
 
     wallTop = new Sprite(width / 2, 0, width, WALLSIZE, 's');
-    wallTop.color = "white";
     walls.add(wallTop);
 
     wallBottom = new Sprite(width / 2, height, width, WALLSIZE, 's');
-    wallBottom.color = "white";
     walls.add(wallBottom);
 
     walls.strokeWeight = 0;
+    walls.color = "white"
 
 }
 
@@ -179,11 +180,11 @@ function addWalls() {
 function enemyHit(_bullet, _enemy) {
 
     if (bulletSpeedEnemyGroup.includes(_enemy)) {
-        bulletSpeed = bulletSpeed + windowHeight / 75;
+        bulletSpeed = bulletSpeed + windowHeight / 150;
     }
 
     if (playerSpeedEnemyGroup.includes(_enemy)) {
-        playerSpeed = playerSpeed + windowHeight / 250;
+        playerSpeed = playerSpeed + windowHeight / 300;
     }
 
     if (doublePointEnemyGroup.includes(_enemy)) {
@@ -244,7 +245,7 @@ function fireBullet() {
 // draw()
 /*******************************************************/
 function draw() {
-    background(backgroundImage);
+    background("lightblue");
 
     // Allow the player to move using arrow keys
 
@@ -268,17 +269,25 @@ function draw() {
 
     };
 
+    // Fire a bullet if the user presses space and there are less than 
+    // three bullets already
+    if (kb.pressed("space") && bulletsGroup.length < MAXBULLETS) {
+        fireBullet();
+    }
+
     // Lose the game if an enemy reaches the bottom of the screen
     if ((enemyGroup.some(enemy => enemy.y > windowHeight)) || kb.pressed("k")) {
         loseGame();
     };
 
-    // Fire a bullet if the user presses space and there are less than three bullets already
-    if (kb.pressed("space") && bulletsGroup.length < MAXBULLETS) {
-        fireBullet();
+    // If the game isn't already running and the player presses r 
+    // to restart, the game will start again
+    if (gameRunning == false && kb.pressed('r')) {
+        setup();
     }
 
-    // If there are no enemies left and the game is running, add more enemies and increase speed
+    // If there are no enemies left and the game is running, add more 
+    // enemies and increase speed
     if ((enemyGroup.length <= 0) && gameRunning) {
         enemySpeed = enemySpeed + windowHeight / 4000;;
         bulletsGroup.deleteAll();
@@ -306,13 +315,9 @@ function draw() {
 
     // Show the score in the bottom left corner
     textSize(windowWidth / 20);
-    fill("blue");
-    textFont("Arial");
+    fill("white");
+    textFont("Jua");
     text(score, 50, windowHeight - 50);
-
-    if (gameRunning == false && kb.pressed('r')) {
-        setup();
-    }
 
 }
 
