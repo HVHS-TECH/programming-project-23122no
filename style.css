@@ -1,9 +1,14 @@
+body {
+  background-color: #dcf4ff;
+  font-family: "Jua", sans-serif;
+  color: #0a1a46;
+}
+
 button {
-  padding: 20px;
-  font-size: 25px;
+  padding: 2vmin;
+  font-size: 4vmin;
   cursor: pointer;
   background-color: #a3e2ff;
-  width: 300px;
   text-align: center;
   border-style: solid;
   border-color: #0a1a46;
@@ -12,32 +17,30 @@ button {
   color: #0a1a46;
 }
 
-body {
-    background-color:#dcf4ff;
-    font-family: "Jua", sans-serif;
-    color: #0a1a46;
-}
-
-.container > div {
-  font-size: 25px;
-  width: auto;
-  text-align: center;
-}
-
-.container {
-    margin-top: 200px;
-}
-
-#lose {
-    font-size: 50px;
-    margin: 25px;
-}
-
 h1 {
-  font-size: 75px;
+  font-size: 10vmin;
 }
 
 p {
-  margin-left: 50px;
-  margin-right: 50px;
+  font-size: 6vmin;
+}
+
+.container {
+  margin: 1vmin;
+}
+
+.container > div {
+  width: auto;
+  text-align: center;
+  padding: 2vmin;
+}
+
+#lose {
+  font-size: 8vmin;
+  margin: 1vmin;
+}
+
+
+#home {
+  font-size: 4vmin;
 }

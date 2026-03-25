@@ -9,21 +9,10 @@ let bulletSpeed = 10;
 let playerSpeed = 4;
 let enemySpeed = 0.25;
 
-let enemyRound = 2;
+let enemyRound = 1;
 let bulletAmount = 1;
 let gameRunning = true;
 let score = 0;
-
-// Define constants
-const MAXBULLETS = 2;
-
-/*******************************************************/
-// preload()
-/*******************************************************/
-function preload() {
-    backgroundImage = loadImage("images/background.png");
-    playerImage = loadImage("images/player_image.png");
-}
 
 /*******************************************************/
 // setup()
@@ -75,8 +64,6 @@ function addPlayer() {
     player = new Sprite(windowWidth / 2, windowHeight - 200, playerSize, "d");
     player.color = "#2c71ca"
     player.strokeWeight = 2;
-    //player.img = (playerImage);
-    //playerImage.resize(playerSize, playerSize);
 }
 
 /*******************************************************/
@@ -84,30 +71,37 @@ function addPlayer() {
 /*******************************************************/
 function addEnemies() {
 
+    // Define constants for enemy size
     const ENEMYWIDTH = windowWidth / 25;
     const ENEMYHEIGHT = windowHeight / 20;
 
+    // Define variables
     let enemyNumber = 1;
 
     let playerSpeedEnemyNumber = floor(random(1, 30));
     let bulletSpeedEnemyNumber = floor(random(1, 30));
 
+    // Create a set of numbers that will act as double point enemies
     let doublePointEnemyNumbers = new Set();
 
+    // Add numbers into the set until there are 5
     while (doublePointEnemyNumbers.size < 5) {
         doublePointEnemyNumbers.add(floor(random(1, 30)));
     }
 
+    // If any of the chosen numbers for enemies overlap, change the 
+    // numbers until they are all unique
     while (doublePointEnemyNumbers.has(playerSpeedEnemyNumber) ||
-           doublePointEnemyNumbers.has(bulletSpeedEnemyNumber) ||
-           playerSpeedEnemyNumber == bulletSpeedEnemyNumber) {
+        doublePointEnemyNumbers.has(bulletSpeedEnemyNumber) ||
+        playerSpeedEnemyNumber == bulletSpeedEnemyNumber) {
 
         playerSpeedEnemyNumber = floor(random(1, 30));
         bulletSpeedEnemyNumber = floor(random(1, 30));
-
     }
 
     // Create a 10 by 3 grid of enemies
+    // If the number of the enemy we're creating matches the number of the 
+    // enemy that should be special, then add it to a group
     for (i = 1; i < 11; i++) {
         for (n = 1; n < 4; n++) {
 
@@ -181,14 +175,9 @@ function enemyHit(_bullet, _enemy) {
 
     if (bulletSpeedEnemyGroup.includes(_enemy)) {
         bulletSpeed = bulletSpeed + windowHeight / 150;
-    }
-
-    if (playerSpeedEnemyGroup.includes(_enemy)) {
+    } else if (playerSpeedEnemyGroup.includes(_enemy)) {
         playerSpeed = playerSpeed + windowHeight / 300;
-    }
-
-    if (doublePointEnemyGroup.includes(_enemy)) {
-        console.log("hit double point");
+    } else if (doublePointEnemyGroup.includes(_enemy)) {
         score = score + 2;
     } else {
         score++;
@@ -211,7 +200,6 @@ function wallsHit(_bullet) {
 // loseGame()
 /*******************************************************/
 function loseGame() {
-    console.log("you lost");
 
     gameRunning = false;
 
@@ -224,28 +212,30 @@ function loseGame() {
     walls.remove();
     cnv.remove();
 
-
     // Show the end screen and update its text
     ended.style.display = "block";
-    lose.textContent = "You killed " + score + " enemies.";
+    lose.textContent = "You reached round " + enemyRound + ". You earned " + score + " points.";
 }
 
 /*******************************************************/
 // fireBullet()
 /*******************************************************/
 function fireBullet() {
-    // Create a new bullet where the player is
+    // Create a new bullet at the player's location
     bullet = new Sprite(player.x, player.y, windowWidth / 80, "d");
     bulletsGroup.add(bullet);
     bulletsGroup.color = "yellow";
     bulletsGroup.strokeWeight = 2;
-}
+} 
 
 /*******************************************************/
 // draw()
 /*******************************************************/
 function draw() {
     background("lightblue");
+
+    // Define constants
+    const MAXBULLETS = 2;
 
     // Allow the player to move using arrow keys
 
