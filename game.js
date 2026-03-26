@@ -5,14 +5,13 @@
 /*******************************************************/
 
 // Define variables
-let bulletSpeed = 10;
-let playerSpeed = 4;
-let enemySpeed = 0.25;
+let bulletSpeed;
+let playerSpeed;
+let enemySpeed;
 
-let enemyRound = 1;
-let bulletAmount = 1;
-let gameRunning = true;
-let score = 0;
+let gameRunning;
+let enemyRound;
+let score;
 
 /*******************************************************/
 // setup()
@@ -32,8 +31,9 @@ function setup() {
     bulletSpeedEnemyGroup = new Group;
     doublePointEnemyGroup = new Group;
 
-    // Update variables
+    // Reset variables
     gameRunning = true;
+    enemyRound = 1;
     score = 0;
 
     // Set enemy sizing to be proportional to the window size
@@ -71,7 +71,7 @@ function addPlayer() {
 /*******************************************************/
 function addEnemies() {
 
-    // Define constants for enemy size
+    // Define constants for enemy size based on window size
     const ENEMYWIDTH = windowWidth / 25;
     const ENEMYHEIGHT = windowHeight / 20;
 
@@ -89,7 +89,7 @@ function addEnemies() {
         doublePointEnemyNumbers.add(floor(random(1, 30)));
     }
 
-    // If any of the chosen numbers for enemies overlap, change the 
+    // When any of the chosen numbers for enemies overlap, change the 
     // numbers until they are all unique
     while (doublePointEnemyNumbers.has(playerSpeedEnemyNumber) ||
         doublePointEnemyNumbers.has(bulletSpeedEnemyNumber) ||
@@ -101,10 +101,9 @@ function addEnemies() {
 
     // Create a 10 by 3 grid of enemies
     // If the number of the enemy we're creating matches the number of the 
-    // enemy that should be special, then add it to a group
+    // enemy that should have a powerup, then add it to the respective group
     for (i = 1; i < 11; i++) {
         for (n = 1; n < 4; n++) {
-
             enemy = new Sprite(
                 i * (2 * ENEMYWIDTH) + windowWidth / 2 - (ENEMYWIDTH * 11),
                 n * (2 * ENEMYHEIGHT),
@@ -115,7 +114,7 @@ function addEnemies() {
 
             if (enemyNumber == playerSpeedEnemyNumber) {
                 playerSpeedEnemyGroup.add(enemy);
-            } else if (enemyNumber == bulletSpeedEnemyNumber) {
+            } else if (enemyNumber == bulletSpeedEnemyNumber && enemyRound % 2 == 0) {
                 bulletSpeedEnemyGroup.add(enemy);
             } else if (doublePointEnemyNumbers.has(enemyNumber)) {
                 doublePointEnemyGroup.add(enemy);
@@ -126,15 +125,17 @@ function addEnemies() {
         }
     }
 
+
+    // Set the colours of the enemies depending on their type
     enemyGroup.color = "#5ea057"
     bulletSpeedEnemyGroup.color = "#276920"
     playerSpeedEnemyGroup.color = "#c1f0bc"
     doublePointEnemyGroup.color = "white"
 
-    enemyGroup.vel.y = enemySpeed;
-    //enemyGroup.vel.x = enemySpeed * 1.5;
-
     enemyGroup.strokeWeight = 2;
+
+    // Move the enemies down the screen
+    enemyGroup.vel.y = enemySpeed;
 
     // Check for collisions between enemies and player, lose the 
     // game if this occurs
@@ -144,28 +145,28 @@ function addEnemies() {
 /*******************************************************/
 // addWalls()
 /*******************************************************/
-
 function addWalls() {
 
-    // Create walls around the outside of the screen
+    // Define the sizing of the walls
+    const WALLWIDTH = windowWidth / 25;
+    const WALLHEIGHT = windowHeight / 25;
 
-    const WALLSIZE = 20;
+    // Create walls around the outside of the screen and add them to a group
 
-    wallLeft = new Sprite(0, height / 2, WALLSIZE, height, 's');
+    wallLeft = new Sprite(0, height / 2, WALLWIDTH, height, 's');
     walls.add(wallLeft);
 
-    wallRight = new Sprite(width, height / 2, WALLSIZE, height, 's');
+    wallRight = new Sprite(width, height / 2, WALLWIDTH, height, 's');
     walls.add(wallRight);
 
-    wallTop = new Sprite(width / 2, 0, width, WALLSIZE, 's');
+    wallTop = new Sprite(width / 2, 0, width, WALLHEIGHT, 's');
     walls.add(wallTop);
 
-    wallBottom = new Sprite(width / 2, height, width, WALLSIZE, 's');
+    wallBottom = new Sprite(width / 2, height, width, WALLHEIGHT, 's');
     walls.add(wallBottom);
 
     walls.strokeWeight = 0;
     walls.color = "white"
-
 }
 
 /*******************************************************/
@@ -173,11 +174,19 @@ function addWalls() {
 /*******************************************************/
 function enemyHit(_bullet, _enemy) {
 
+    // If the enemy that was hit was the bullet speed powerup, speed up the bullet
     if (bulletSpeedEnemyGroup.includes(_enemy)) {
         bulletSpeed = bulletSpeed + windowHeight / 150;
-    } else if (playerSpeedEnemyGroup.includes(_enemy)) {
+    }
+
+    // If the enemy that was hit was the player speed powerup, speed up the player
+    if (playerSpeedEnemyGroup.includes(_enemy)) {
         playerSpeed = playerSpeed + windowHeight / 300;
-    } else if (doublePointEnemyGroup.includes(_enemy)) {
+    }
+
+    // If the enemy that was hit was worth double points, add 2 to the score
+    // Otherwise, add 1 to the score
+    if (doublePointEnemyGroup.includes(_enemy)) {
         score = score + 2;
     } else {
         score++;
@@ -192,7 +201,7 @@ function enemyHit(_bullet, _enemy) {
 // wallsHit()
 /*******************************************************/
 function wallsHit(_bullet) {
-    // Remove the button if it hits any of the walls
+    // Remove the bullet if it hits any of the walls
     _bullet.remove();
 }
 
@@ -201,6 +210,7 @@ function wallsHit(_bullet) {
 /*******************************************************/
 function loseGame() {
 
+    // Broadcast that the game has ended
     gameRunning = false;
 
     // Delete all sprites within the enemy and bullet groups
@@ -226,7 +236,7 @@ function fireBullet() {
     bulletsGroup.add(bullet);
     bulletsGroup.color = "yellow";
     bulletsGroup.strokeWeight = 2;
-} 
+}
 
 /*******************************************************/
 // draw()
@@ -238,25 +248,16 @@ function draw() {
     const MAXBULLETS = 2;
 
     // Allow the player to move using arrow keys
-
     if (kb.pressing('left')) {
-
         player.velocity.x = -playerSpeed;
-
     } else if (kb.pressing('right')) {
-
         player.velocity.x = playerSpeed;
-
     };
 
     if (kb.released('left')) {
-
         player.velocity.x = 0;
-
     } else if (kb.released('right')) {
-
         player.velocity.x = 0;
-
     };
 
     // Fire a bullet if the user presses space and there are less than 
@@ -277,7 +278,7 @@ function draw() {
     }
 
     // If there are no enemies left and the game is running, add more 
-    // enemies and increase speed
+    // enemies and increase their speed
     if ((enemyGroup.length <= 0) && gameRunning) {
         enemySpeed = enemySpeed + windowHeight / 4000;;
         bulletsGroup.deleteAll();
@@ -285,21 +286,10 @@ function draw() {
         addEnemies();
     }
 
-    /**************************************************
-    if (enemyGroup.some(enemy => enemy.x > windowWidth - windowWidth/15)) {
-        enemyGroup.vel.x = -enemySpeed * 1.5;
-    };
-
-    if (enemyGroup.some(enemy => enemy.x < windowWidth/15)) {
-        enemyGroup.vel.x = enemySpeed * 1.5;
-    };
-    **************************************************/
-
     // Prevent the player from changing from their position on the y axis
-    player.vel.y = 0;
     player.y = windowHeight - windowHeight / 10;
 
-    // Always move the bullets vertically upwards
+    // Make sure the bullets vertically upwards
     bulletsGroup.vel.x = 0;
     bulletsGroup.vel.y = -bulletSpeed;
 
@@ -307,8 +297,9 @@ function draw() {
     textSize(windowWidth / 20);
     fill("white");
     textFont("Jua");
-    text(score, 50, windowHeight - 50);
+    text(score, windowWidth / 20, windowHeight - (windowHeight / 20));
 
+    allSprites.stroke = "#0a1a46";
 }
 
 /*******************************************************/
