@@ -1,7 +1,8 @@
 body {
   background-color: #dcf4ff;
   font-family: "Jua", sans-serif;
-  color: #0a1a46;
+  color: #162d6d;
+  overflow: hidden;
 }
 
 button {
@@ -11,10 +12,11 @@ button {
   background-color: #a3e2ff;
   text-align: center;
   border-style: solid;
-  border-color: #0a1a46;
+  border-color: #162d6d;
+  border-width: 6px;
   border-radius: 10px;
   font-family: "Jua", sans-serif;
-  color: #0a1a46;
+  color: #162d6d;
 }
 
 h1 {
@@ -26,20 +28,18 @@ p {
 }
 
 .container {
-  margin: 1vmin;
+  margin-left: 10vmin;
+  margin-right: 10vmin;
 }
 
 .container > div {
   width: auto;
   text-align: center;
-  padding: 2vmin;
 }
 
 #lose {
   font-size: 8vmin;
-  margin: 1vmin;
 }
-
 
 #home {
   font-size: 4vmin;

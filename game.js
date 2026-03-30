@@ -21,7 +21,7 @@ function setup() {
 
     // Create a canvas
     cnv = new Canvas(windowWidth, windowHeight);
-
+    
     // Define groups
     bulletsGroup = new Group;
     walls = new Group;
@@ -125,7 +125,6 @@ function addEnemies() {
         }
     }
 
-
     // Set the colours of the enemies depending on their type
     enemyGroup.color = "#5ea057"
     bulletSpeedEnemyGroup.color = "#276920"
@@ -174,7 +173,7 @@ function addWalls() {
 /*******************************************************/
 function enemyHit(_bullet, _enemy) {
 
-    // If the enemy that was hit was the bullet speed powerup, speed up the bullet
+    // If the enemy that was hit was the bullet speed powerup, speed up the bullets
     if (bulletSpeedEnemyGroup.includes(_enemy)) {
         bulletSpeed = bulletSpeed + windowHeight / 150;
     }
@@ -224,7 +223,8 @@ function loseGame() {
 
     // Show the end screen and update its text
     ended.style.display = "block";
-    lose.textContent = "You reached round " + enemyRound + ". You earned " + score + " points.";
+    lose.textContent = "You reached round " + enemyRound + 
+    " and earned " + score + " points.";
 }
 
 /*******************************************************/
@@ -236,6 +236,16 @@ function fireBullet() {
     bulletsGroup.add(bullet);
     bulletsGroup.color = "yellow";
     bulletsGroup.strokeWeight = 2;
+}
+
+/*******************************************************/
+// writeScore()
+/*******************************************************/
+function writeScore() {
+    textSize(windowWidth / 20);
+    fill("white");
+    textFont("Jua");
+    text(score, windowWidth / 20, windowHeight - (windowHeight / 20));
 }
 
 /*******************************************************/
@@ -267,7 +277,7 @@ function draw() {
     }
 
     // Lose the game if an enemy reaches the bottom of the screen
-    if ((enemyGroup.some(enemy => enemy.y > windowHeight)) || kb.pressed("k")) {
+    if ((enemyGroup.some(enemy => enemy.y > windowHeight))) {
         loseGame();
     };
 
@@ -294,12 +304,9 @@ function draw() {
     bulletsGroup.vel.y = -bulletSpeed;
 
     // Show the score in the bottom left corner
-    textSize(windowWidth / 20);
-    fill("white");
-    textFont("Jua");
-    text(score, windowWidth / 20, windowHeight - (windowHeight / 20));
+    writeScore();
 
-    allSprites.stroke = "#0a1a46";
+    allSprites.stroke = "#162d6d";
 }
 
 /*******************************************************/
