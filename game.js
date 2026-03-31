@@ -13,6 +13,15 @@ let gameRunning;
 let enemyRound;
 let score;
 
+let playerY;
+
+let enemyDefaultSpeed;
+let playerDefaultSpeed;
+let bulletDefaultSpeed;
+
+let windowCentreX;
+let windowCentreY;
+
 /*******************************************************/
 // setup()
 /*******************************************************/
@@ -21,11 +30,14 @@ function setup() {
 
     // Create a canvas
     cnv = new Canvas(windowWidth, windowHeight);
-    
+
     // Define groups
     bulletsGroup = new Group;
     walls = new Group;
     enemyGroup = new Group;
+
+    windowCentreX = windowWidth / 2;
+    windowCentreY = windowHeight / 2;
 
     playerSpeedEnemyGroup = new Group;
     bulletSpeedEnemyGroup = new Group;
@@ -37,9 +49,14 @@ function setup() {
     score = 0;
 
     // Set enemy sizing to be proportional to the window size
-    enemySpeed = windowHeight / 2000;
-    playerSpeed = windowWidth / 300;
-    bulletSpeed = windowHeight / 100;
+    enemyDefaultSpeed = windowHeight / 2000;
+    enemySpeed = enemyDefaultSpeed;
+
+    playerDefaultSpeed = windowWidth / 300;
+    playerSpeed = playerDefaultSpeed;
+
+    bulletDefaultSpeed = windowHeight / 100;
+    bulletSpeed = bulletDefaultSpeed;
 
     // Add the game components
     addPlayer();
@@ -49,6 +66,8 @@ function setup() {
     // Trigger respective functions when collisions occur with bullets
     bulletsGroup.collides(walls, wallsHit);
     bulletsGroup.collides(enemyGroup, enemyHit);
+
+    walls.collides(enemyGroup, loseGame)
 
     // Hide the end screen
     ended.style.display = "none";
@@ -60,10 +79,12 @@ function setup() {
 function addPlayer() {
     // Create a new sprite to be the player in the middle bottom of 
     // the screen
-    playerSize = windowHeight / 25
-    player = new Sprite(windowWidth / 2, windowHeight - 200, playerSize, "d");
+    const PLAYERSIZE = windowHeight / 25
+    playerY = windowHeight - windowHeight / 10
+
+    player = new Sprite(windowCentreX, playerY, PLAYERSIZE, "d");
     player.color = "#2c71ca"
-    player.strokeWeight = 2;
+
 }
 
 /*******************************************************/
@@ -105,11 +126,11 @@ function addEnemies() {
     for (i = 1; i < 11; i++) {
         for (n = 1; n < 4; n++) {
             enemy = new Sprite(
-                i * (2 * ENEMYWIDTH) + windowWidth / 2 - (ENEMYWIDTH * 11),
+                i * (2 * ENEMYWIDTH) + windowCentreX - (ENEMYWIDTH * 11),
                 n * (2 * ENEMYHEIGHT),
                 ENEMYWIDTH,
                 ENEMYHEIGHT,
-                "k"
+                "d"
             );
 
             if (enemyNumber == playerSpeedEnemyNumber) {
@@ -131,14 +152,13 @@ function addEnemies() {
     playerSpeedEnemyGroup.color = "#c1f0bc"
     doublePointEnemyGroup.color = "white"
 
-    enemyGroup.strokeWeight = 2;
-
     // Move the enemies down the screen
     enemyGroup.vel.y = enemySpeed;
 
     // Check for collisions between enemies and player, lose the 
     // game if this occurs
     player.collides(enemyGroup, loseGame);
+
 }
 
 /*******************************************************/
@@ -151,7 +171,6 @@ function addWalls() {
     const WALLHEIGHT = windowHeight / 25;
 
     // Create walls around the outside of the screen and add them to a group
-
     wallLeft = new Sprite(0, height / 2, WALLWIDTH, height, 's');
     walls.add(wallLeft);
 
@@ -164,7 +183,6 @@ function addWalls() {
     wallBottom = new Sprite(width / 2, height, width, WALLHEIGHT, 's');
     walls.add(wallBottom);
 
-    walls.strokeWeight = 0;
     walls.color = "white"
 }
 
@@ -175,12 +193,12 @@ function enemyHit(_bullet, _enemy) {
 
     // If the enemy that was hit was the bullet speed powerup, speed up the bullets
     if (bulletSpeedEnemyGroup.includes(_enemy)) {
-        bulletSpeed = bulletSpeed + windowHeight / 150;
+        bulletSpeed = bulletSpeed + bulletDefaultSpeed / 2;
     }
 
     // If the enemy that was hit was the player speed powerup, speed up the player
     if (playerSpeedEnemyGroup.includes(_enemy)) {
-        playerSpeed = playerSpeed + windowHeight / 300;
+        playerSpeed = playerSpeed + playerDefaultSpeed / 2;
     }
 
     // If the enemy that was hit was worth double points, add 2 to the score
@@ -223,8 +241,31 @@ function loseGame() {
 
     // Show the end screen and update its text
     ended.style.display = "block";
-    lose.textContent = "You reached round " + enemyRound + 
-    " and earned " + score + " points.";
+    lose.textContent = "You reached round " + enemyRound +
+        " and earned " + score + " points.";
+}
+
+
+/*******************************************************/
+// movePlayer()
+/*******************************************************/
+function movePlayer() {   
+    // Allow the player to move using arrow keys
+    if (kb.pressing('left')) {
+        player.velocity.x = -playerSpeed;
+    } else if (kb.pressing('right')) {
+        player.velocity.x = playerSpeed;
+    };
+
+    if (kb.released('left')) {
+        player.velocity.x = 0;
+    } else if (kb.released('right')) {
+        player.velocity.x = 0;
+    };
+
+    // Prevent the player from changing from their position on the y axis
+    player.y = playerY;
+
 }
 
 /*******************************************************/
@@ -235,7 +276,6 @@ function fireBullet() {
     bullet = new Sprite(player.x, player.y, windowWidth / 80, "d");
     bulletsGroup.add(bullet);
     bulletsGroup.color = "yellow";
-    bulletsGroup.strokeWeight = 2;
 }
 
 /*******************************************************/
@@ -257,29 +297,14 @@ function draw() {
     // Define constants
     const MAXBULLETS = 2;
 
-    // Allow the player to move using arrow keys
-    if (kb.pressing('left')) {
-        player.velocity.x = -playerSpeed;
-    } else if (kb.pressing('right')) {
-        player.velocity.x = playerSpeed;
-    };
-
-    if (kb.released('left')) {
-        player.velocity.x = 0;
-    } else if (kb.released('right')) {
-        player.velocity.x = 0;
-    };
+    // Allow the player to move    
+    movePlayer();
 
     // Fire a bullet if the user presses space and there are less than 
     // three bullets already
     if (kb.pressed("space") && bulletsGroup.length < MAXBULLETS) {
         fireBullet();
     }
-
-    // Lose the game if an enemy reaches the bottom of the screen
-    if ((enemyGroup.some(enemy => enemy.y > windowHeight))) {
-        loseGame();
-    };
 
     // If the game isn't already running and the player presses r 
     // to restart, the game will start again
@@ -289,15 +314,12 @@ function draw() {
 
     // If there are no enemies left and the game is running, add more 
     // enemies and increase their speed
-    if ((enemyGroup.length <= 0) && gameRunning) {
-        enemySpeed = enemySpeed + windowHeight / 4000;;
+    if ((enemyGroup.length == 0) && gameRunning) {
+        enemySpeed = enemySpeed + enemyDefaultSpeed / 2;
         bulletsGroup.deleteAll();
         enemyRound++;
         addEnemies();
     }
-
-    // Prevent the player from changing from their position on the y axis
-    player.y = windowHeight - windowHeight / 10;
 
     // Make sure the bullets vertically upwards
     bulletsGroup.vel.x = 0;
@@ -306,7 +328,10 @@ function draw() {
     // Show the score in the bottom left corner
     writeScore();
 
+    // Outline the sprites excluding the walls
     allSprites.stroke = "#162d6d";
+    allSprites.strokeWeight = 2;
+    walls.strokeWeight = 0;
 }
 
 /*******************************************************/
