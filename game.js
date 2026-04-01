@@ -48,14 +48,14 @@ function setup() {
     enemyRound = 1;
     score = 0;
 
-    // Set enemy sizing to be proportional to the window size
-    enemyDefaultSpeed = windowHeight / 2000;
+    // Set enemy speed to be proportional to the window size
+    enemyDefaultSpeed = height / 2000;
     enemySpeed = enemyDefaultSpeed;
 
-    playerDefaultSpeed = windowWidth / 300;
+    playerDefaultSpeed = width / 300;
     playerSpeed = playerDefaultSpeed;
 
-    bulletDefaultSpeed = windowHeight / 100;
+    bulletDefaultSpeed = height / 100;
     bulletSpeed = bulletDefaultSpeed;
 
     // Add the game components
@@ -79,8 +79,8 @@ function setup() {
 function addPlayer() {
     // Create a new sprite to be the player in the middle bottom of 
     // the screen
-    const PLAYERSIZE = windowHeight / 25
-    playerY = windowHeight - windowHeight / 10
+    const PLAYERSIZE = height / 25
+    playerY = height - height / 10
 
     player = new Sprite(windowCentreX, playerY, PLAYERSIZE, "d");
     player.color = "#2c71ca"
@@ -93,8 +93,8 @@ function addPlayer() {
 function addEnemies() {
 
     // Define constants for enemy size based on window size
-    const ENEMYWIDTH = windowWidth / 25;
-    const ENEMYHEIGHT = windowHeight / 20;
+    const ENEMYWIDTH = width / 25;
+    const ENEMYHEIGHT = height / 20;
 
     // Define variables
     let enemyNumber = 1;
@@ -167,20 +167,20 @@ function addEnemies() {
 function addWalls() {
 
     // Define the sizing of the walls
-    const WALLWIDTH = windowWidth / 25;
-    const WALLHEIGHT = windowHeight / 25;
+    const WALLWIDTH = width / 25;
+    const WALLHEIGHT = height / 25;
 
     // Create walls around the outside of the screen and add them to a group
-    wallLeft = new Sprite(0, height / 2, WALLWIDTH, height, 's');
+    wallLeft = new Sprite(0, windowCentreY, WALLWIDTH, height, 's');
     walls.add(wallLeft);
 
-    wallRight = new Sprite(width, height / 2, WALLWIDTH, height, 's');
+    wallRight = new Sprite(width, windowCentreY, WALLWIDTH, height, 's');
     walls.add(wallRight);
 
-    wallTop = new Sprite(width / 2, 0, width, WALLHEIGHT, 's');
+    wallTop = new Sprite(windowCentreX, 0, width, WALLHEIGHT, 's');
     walls.add(wallTop);
 
-    wallBottom = new Sprite(width / 2, height, width, WALLHEIGHT, 's');
+    wallBottom = new Sprite(windowCentreX, height, width, WALLHEIGHT, 's');
     walls.add(wallBottom);
 
     walls.color = "white"
@@ -273,7 +273,7 @@ function movePlayer() {
 /*******************************************************/
 function fireBullet() {
     // Create a new bullet at the player's location
-    bullet = new Sprite(player.x, player.y, windowWidth / 80, "d");
+    bullet = new Sprite(player.x, player.y, width / 80, "d");
     bulletsGroup.add(bullet);
     bulletsGroup.color = "yellow";
 }
@@ -282,10 +282,11 @@ function fireBullet() {
 // writeScore()
 /*******************************************************/
 function writeScore() {
-    textSize(windowWidth / 20);
+    let textScale = width / 20;
+    textSize(textScale);
     fill("white");
     textFont("Jua");
-    text(score, windowWidth / 20, windowHeight - (windowHeight / 20));
+    text(score, textScale, height - textScale);
 }
 
 /*******************************************************/
