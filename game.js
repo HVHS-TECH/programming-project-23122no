@@ -249,7 +249,7 @@ function loseGame() {
 /*******************************************************/
 // movePlayer()
 /*******************************************************/
-function movePlayer() {   
+function movePlayer() {
     // Allow the player to move using arrow keys
     if (kb.pressing('left')) {
         player.velocity.x = -playerSpeed;
@@ -298,13 +298,38 @@ function draw() {
     // Define constants
     const MAXBULLETS = 2;
 
-    // Allow the player to move    
-    movePlayer();
+    if (gameRunning == true) {
 
-    // Fire a bullet if the user presses space and there are less than 
-    // three bullets already
-    if (kb.pressed("space") && bulletsGroup.length < MAXBULLETS) {
-        fireBullet();
+        // Allow the player to move    
+        movePlayer();
+
+        // Fire a bullet if the user presses space and there are less than 
+        // three bullets already
+        if (kb.pressed("space") && bulletsGroup.length < MAXBULLETS) {
+            fireBullet();
+        }
+
+        // If there are no enemies left and the game is running, add more 
+        // enemies and increase their speed
+        if (enemyGroup.length == 0) {
+            enemySpeed = enemySpeed + enemyDefaultSpeed / 2;
+            bulletsGroup.deleteAll();
+            enemyRound++;
+            addEnemies();
+        }
+
+        // Make sure the bullets vertically upwards
+        bulletsGroup.vel.x = 0;
+        bulletsGroup.vel.y = -bulletSpeed;
+
+        // Show the score in the bottom left corner
+        writeScore();
+
+        // Outline the sprites excluding the walls
+        allSprites.stroke = "#162d6d";
+        allSprites.strokeWeight = 2;
+        walls.strokeWeight = 0;
+
     }
 
     // If the game isn't already running and the player presses r 
@@ -313,26 +338,7 @@ function draw() {
         setup();
     }
 
-    // If there are no enemies left and the game is running, add more 
-    // enemies and increase their speed
-    if ((enemyGroup.length == 0) && gameRunning) {
-        enemySpeed = enemySpeed + enemyDefaultSpeed / 2;
-        bulletsGroup.deleteAll();
-        enemyRound++;
-        addEnemies();
-    }
 
-    // Make sure the bullets vertically upwards
-    bulletsGroup.vel.x = 0;
-    bulletsGroup.vel.y = -bulletSpeed;
-
-    // Show the score in the bottom left corner
-    writeScore();
-
-    // Outline the sprites excluding the walls
-    allSprites.stroke = "#162d6d";
-    allSprites.strokeWeight = 2;
-    walls.strokeWeight = 0;
 }
 
 /*******************************************************/
